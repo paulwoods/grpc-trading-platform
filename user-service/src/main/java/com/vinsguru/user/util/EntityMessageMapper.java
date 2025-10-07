@@ -1,0 +1,30 @@
+package com.vinsguru.user.util;
+
+import com.vinsguru.user.Holding;
+import com.vinsguru.user.UserInformation;
+import com.vinsguru.user.entity.PortfolioItem;
+import com.vinsguru.user.entity.User;
+
+import java.util.List;
+
+public class EntityMessageMapper {
+
+    public static UserInformation toUserInformation(User user, List<PortfolioItem> portfolioItems) {
+
+        List<Holding> holdings = portfolioItems.stream()
+                .map(item -> Holding.newBuilder()
+                        .setTicker(item.getTicker())
+                        .setQuantity(item.getQuantity())
+                        .build()
+                )
+                .toList();
+
+        return UserInformation.newBuilder()
+                .setUserId(user.getId())
+                .setName(user.getName())
+                .setBalance(user.getBalance())
+                .addAllHoldings(holdings)
+                .build();
+    }
+
+}
