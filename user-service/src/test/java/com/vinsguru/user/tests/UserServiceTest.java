@@ -110,19 +110,5 @@ public class UserServiceTest {
         assertEquals(Status.Code.FAILED_PRECONDITION, ex.getStatus().getCode());
         assertEquals("User [id=1] does not have enough funds to complete the transaction.", ex.getStatus().getDescription());
     }
-    /*
-    enum TradeAction {
-  BUY = 0;
-  SELL = 1;
-}
-
-message StockTradeRequest {
-  int32 user_id = 1;
-  common.Ticker ticker = 2;
-  int32 price = 3;
-  int32 quantity = 4;
-  TradeAction action = 5;
-}
-     */
 
 }
