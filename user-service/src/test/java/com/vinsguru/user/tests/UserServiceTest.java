@@ -1,10 +1,7 @@
 package com.vinsguru.user.tests;
 
 import com.vinsguru.common.Ticker;
-import com.vinsguru.user.StockTradeRequest;
-import com.vinsguru.user.TradeAction;
-import com.vinsguru.user.UserInformationRequest;
-import com.vinsguru.user.UserServiceGrpc;
+import com.vinsguru.user.*;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -109,6 +106,51 @@ public class UserServiceTest {
 
         assertEquals(Status.Code.FAILED_PRECONDITION, ex.getStatus().getCode());
         assertEquals("User [id=1] does not have enough funds to complete the transaction.", ex.getStatus().getDescription());
+    }
+
+    @Test
+    public void buySellTest() {
+
+        // buy
+
+        var buyRequest = StockTradeRequest.newBuilder()
+                .setUserId(2)
+                .setPrice(100)
+                .setQuantity(5)
+                .setTicker(Ticker.AMAZON)
+                .setAction(TradeAction.BUY)
+                .build();
+
+        var buyResponse = stub.tradeStock(buyRequest);
+
+        // validate balance
+
+        Assertions.assertEquals(9_500, buyResponse.getBalance());
+
+        // check holding
+
+        var userRequest = UserInformationRequest.newBuilder()
+                .setUserId(2)
+                .build();
+
+        var userResponse = stub.getUserInformation(userRequest);
+
+        assertEquals(1, userResponse.getHoldingsCount());
+        assertEquals(Ticker.AMAZON, userResponse.getHoldings(0).getTicker());
+        assertEquals(5, userResponse.getHoldings(0).getQuantity());
+
+        // sell
+
+        var sellRequest = buyRequest.toBuilder()
+                .setAction(TradeAction.SELL)
+                .setPrice(102)
+                .build();
+
+        var sellResponse = stub.tradeStock(sellRequest);
+
+        // validate balance
+
+        assertEquals(10_010, sellResponse.getBalance());
     }
 
 }
